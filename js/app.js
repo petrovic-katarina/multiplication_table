@@ -107,14 +107,15 @@ var Result = /** @class */ (function () {
 /// <reference path="result.ts" />
 var Scoreboard = /** @class */ (function () {
     function Scoreboard() {
+        this.results = [];
     }
     Scoreboard.prototype.addResult = function (newResult) {
-        this._results.push(newResult);
+        this.results.push(newResult);
     };
-    Scoreboard.prototype.updateScoreBoard = function () {
+    Scoreboard.prototype.updateScoreboard = function () {
         var output = '<h2>Scoreboard</h2>';
-        for (var i in this._results) {
-            var result = this._results[i];
+        for (var index = 0; index < this.results.length; index++) {
+            var result = this.results[index];
             output += '<h4>';
             output += result.playerName + ': ' + result.score + '/' + result.problemCount + ' for factor ' + result.factor;
             output += '</h4>';
@@ -149,17 +150,32 @@ var Game = /** @class */ (function () {
         document.getElementById('calculate').removeAttribute('disabled');
     };
     Game.prototype.calculateScore = function () {
-        //TODO 5 Izracunati skor (proci kroz svako input polje sa idjem answer + i (answer1, answer2....))
-        //I u vakom korak proveriti da li je i*fakotr == vrednosti polja answer
-        //TODO 6 napraviti objekat rezultata koji zadovoljva intrfejs results i dodati ga u 
-        //this.scoreboard i pozvati updateScoreboared metodu
-        //TODO 7 Onemogucti klik na calculate dugme
+        var score = 0;
+        for (var i = 1; i <= this.problemCount; i++) {
+            var answer = Number(Utility.getInputValue('answer' + 1));
+            if (i * this.factor === answer) {
+                score++;
+            }
+        }
+        var result = new Result(this.player.formatName(), score, this.problemCount, this.factor);
+        this.scoreboard.addResult(result);
+        this.scoreboard.updateScoreboard();
+        document.getElementById('calculate').setAttribute('disabled', 'true');
     };
     return Game;
 }());
 /// <reference path="player.ts" />
 /// <reference path="game.ts" />
 var newGame;
-// TODO 4 implementirati reakciju na klik dugmeta StartGame
-// TODO  implementirati reakciju na klik dugmeta Calculate
+document.getElementById('startGame').addEventListener('click', function () {
+    var player = new Player();
+    player.name = Utility.getInputValue('playername');
+    var problemCount = Number(Utility.getInputValue('problemCount'));
+    var factor = Number(Utility.getInputValue('factor'));
+    newGame = new Game(player, problemCount, factor);
+    newGame.displayGame();
+});
+document.getElementById('calculate').addEventListener('click', function () {
+    newGame.calculateScore();
+});
 //# sourceMappingURL=app.js.map
